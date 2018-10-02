@@ -55,13 +55,7 @@ public class SmsRCHardwarePushbot
     public DcMotor  frontRightDrive  = null;
     public DcMotor  rearLeftDrive   = null;
     public DcMotor  rearRightDrive  = null;
-    public DcMotor  leftArm     = null;
-    public Servo    leftClaw    = null;
-    public Servo    rightClaw   = null;
 
-    public static final double MID_SERVO       =  0.5 ;
-    public static final double ARM_UP_POWER    =  0.45 ;
-    public static final double ARM_DOWN_POWER  = -0.45 ;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -83,11 +77,12 @@ public class SmsRCHardwarePushbot
         rearLeftDrive  = hwMap.get(DcMotor.class, "rl");
         rearRightDrive = hwMap.get(DcMotor.class, "rr");
         //leftArm    = hwMap.get(DcMotor.class, "left_arm");
+        /*
         frontLeftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rearLeftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         frontRightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
         rearRightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-
+*/
         // Set all motors to zero power
         frontLeftDrive.setPower(0);
         frontRightDrive.setPower(0);
@@ -101,13 +96,6 @@ public class SmsRCHardwarePushbot
         frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rearRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rearLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-       // leftArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // Define and initialize ALL installed servos.
-        //leftClaw  = hwMap.get(Servo.class, "left_hand");
-        //rightClaw = hwMap.get(Servo.class, "right_hand");
-        //leftClaw.setPosition(MID_SERVO);
-        //rightClaw.setPosition(MID_SERVO);
     }
  }
 

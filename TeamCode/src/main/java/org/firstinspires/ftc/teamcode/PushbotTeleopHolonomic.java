@@ -27,9 +27,14 @@ package org.firstinspires.ftc.teamcode;/* Copyright (c) 2017 FIRST. All rights r
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.SmsRCHardwarePushbot;
@@ -39,11 +44,15 @@ public class PushbotTeleopHolonomic extends LinearOpMode {
 
     /* Declare OpMode members. */
     SmsRCHardwarePushbot robot = new SmsRCHardwarePushbot();   // Use a Pushbot's hardware
+    NormalizedColorSensor colorSensor;
+    float[] hsvValues = new float[3];
+    final float values[] = hsvValues;
 
     @Override
     public void runOpMode() {
-        double drive;
-        double turn;
+        boolean bPrevState = false;
+        boolean bCurrState = false;
+        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "cs");
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
@@ -54,22 +63,69 @@ public class PushbotTeleopHolonomic extends LinearOpMode {
         telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)
+
+        if (colorSensor instanceof SwitchableLight) {
+            telemetry.addData("color sensor", "Is Switchable");
+            SwitchableLight light = (SwitchableLight)colorSensor;
+            light.enableLight(false);
+        } else {
+            telemetry.addData("color sensor", "Is NOT Switchable");
+        }
+
+
         waitForStart();
+
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            drive = -gamepad1.left_stick_y;
-            turn  =  gamepad1.right_stick_x;
+            float gamepad1LeftY = -gamepad1.left_stick_y;
+            float gamepad1LeftX = gamepad1.left_stick_x;
+            float gamepad1RightX = gamepad1.right_stick_x;
 
-            // Output the safe vales to the motor drives.
-            robot.frontRightDrive.setPower(drive);
-            robot.rearLeftDrive.setPower(drive);
-            robot.frontLeftDrive.setPower(turn);
-            robot.rearRightDrive.setPower(-turn);
+            // holonomic formulas
+            float FrontLeft = -gamepad1LeftY - gamepad1LeftX - gamepad1RightX;
+            float FrontRight = gamepad1LeftY - gamepad1LeftX - gamepad1RightX;
+            float BackRight = gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
+            float BackLeft = -gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
 
+            // clip the right/left values so that the values never exceed +/- 1
+            FrontRight = Range.clip(FrontRight, -1, 1);
+            FrontLeft = Range.clip(FrontLeft, -1, 1);
+            BackLeft = Range.clip(BackLeft, -1, 1);
+            BackRight = Range.clip(BackRight, -1, 1);
+
+            // write the values to the motors
+            robot.frontRightDrive.setPower(FrontRight);
+            robot.frontLeftDrive.setPower(FrontLeft);
+            robot.rearLeftDrive.setPower(BackLeft);
+            robot.rearRightDrive.setPower(BackRight);
+
+            //COLOR SENSOR
+            NormalizedRGBA colors = colorSensor.getNormalizedColors();
+            Color.colorToHSV(colors.toColor(), hsvValues);
+            telemetry.addLine()
+                    .addData("H", "%.3f", hsvValues[0])
+                    .addData("S", "%.3f", hsvValues[1])
+                    .addData("V", "%.3f", hsvValues[2]);
+            telemetry.update();
+            /*
+
+            bCurrState = gamepad1.x;
+
+            if (bCurrState != bPrevState) {
+                if (bCurrState) {
+                    if (colorSensor instanceof SwitchableLight) {
+                        SwitchableLight light = (SwitchableLight)colorSensor;
+                        light.enableLight(!light.isLightOn());
+                    }
+                }
+            }
+
+            bPrevState = bCurrState;
+            */
             telemetry.update();
 
-            // Pace this loop so jaw action is reasonable speed.
+
             sleep(50);
         }
     }

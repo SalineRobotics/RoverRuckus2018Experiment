@@ -77,12 +77,12 @@ public class SmsRCHardwarePushbot
         rearLeftDrive  = hwMap.get(DcMotor.class, "rl");
         rearRightDrive = hwMap.get(DcMotor.class, "rr");
         //leftArm    = hwMap.get(DcMotor.class, "left_arm");
-        /*
+
         frontLeftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rearLeftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         frontRightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
         rearRightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
-*/
+
         // Set all motors to zero power
         frontLeftDrive.setPower(0);
         frontRightDrive.setPower(0);

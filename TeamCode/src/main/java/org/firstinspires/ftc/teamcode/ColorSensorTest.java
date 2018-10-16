@@ -39,29 +39,35 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.SmsRCHardwarePushbot;
 
-@TeleOp(name="Pushbot: Teleop Holonomic", group="Pushbot")
-public class PushbotTeleopHolonomic extends LinearOpMode {
+@TeleOp(name="Pushbot: Color Sensor", group="Pushbot")
+public class ColorSensorTest extends LinearOpMode {
 
     /* Declare OpMode members. */
-   SmsRCHardwarePushbot robot = new SmsRCHardwarePushbot();   // Use a Pushbot's hardware
     NormalizedColorSensor colorSensor;
     float[] hsvValues = new float[3];
     final float values[] = hsvValues;
 
     @Override
     public void runOpMode() {
-
+        boolean bPrevState = false;
+        boolean bCurrState = false;
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "cs");
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        robot.init(hardwareMap);
 
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Say", "Hello Driver");    //
-        telemetry.update();
-        float powerReducer = 1.0f;
+
+
+
         // Wait for the game to start (driver presses PLAY)
+
+        if (colorSensor instanceof SwitchableLight) {
+            telemetry.addData("color sensor", "Is Switchable");
+            SwitchableLight light = (SwitchableLight)colorSensor;
+            light.enableLight(false);
+        } else {
+            telemetry.addData("color sensor", "Is NOT Switchable");
+        }
 
 
         waitForStart();
@@ -69,51 +75,55 @@ public class PushbotTeleopHolonomic extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            float gamepad1LeftY = -gamepad1.left_stick_y;
-            float gamepad1LeftX = gamepad1.left_stick_x;
-            float gamepad1RightX = gamepad1.right_stick_x;
-
-            // holonomic formulas
-            float FrontLeft = -gamepad1LeftY - gamepad1LeftX - gamepad1RightX;
-            float FrontRight = gamepad1LeftY - gamepad1LeftX - gamepad1RightX;
-            float BackRight = gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
-            float BackLeft = -gamepad1LeftY + gamepad1LeftX - gamepad1RightX;
-
-            // clip the right/left values so that the values never exceed +/- 1
-            FrontRight = Range.clip(FrontRight, -1, 1);
-            FrontLeft = Range.clip(FrontLeft, -1, 1);
-            BackLeft = Range.clip(BackLeft, -1, 1);
-            BackRight = Range.clip(BackRight, -1, 1);
-
-            if ( gamepad1.right_trigger > 0) {
-                powerReducer = 0.5f;
-            } else {
-                powerReducer = 1.0f;
-            }
-
-            // write the values to the motors
-
-            robot.frontRightDrive.setPower(FrontRight * powerReducer);
-            robot.frontLeftDrive.setPower(FrontLeft * powerReducer);
-            robot.rearLeftDrive.setPower(BackLeft * powerReducer);
-            robot.rearRightDrive.setPower(BackRight * powerReducer);
-
-            //print out motor values
-            telemetry.addLine()
-                    .addData("front right", FrontRight * powerReducer)
-                    .addData("front left", FrontLeft * powerReducer)
-                    .addData("back left", BackLeft * powerReducer)
-                    .addData("back right", BackRight * powerReducer);
-
             //COLOR SENSOR
             NormalizedRGBA colors = colorSensor.getNormalizedColors();
             Color.colorToHSV(colors.toColor(), hsvValues);
-            /*telemetry.addLine()
+            telemetry.addLine()
                     .addData("H", "%.3f", hsvValues[0])
                     .addData("S", "%.3f", hsvValues[1])
                     .addData("V", "%.3f", hsvValues[2]);
+
+            int color = colors.toColor();
+            float max = Math.max(Math.max(Math.max(colors.red, colors.green), colors.blue), colors.alpha);
+            colors.red   /= max;
+            colors.green /= max;
+            colors.blue  /= max;
+            color = colors.toColor();
+            telemetry.addLine("normalized color:  ")
+                    .addData("a", "%02x", Color.alpha(color))
+                    .addData("r", "%02x", Color.red(color))
+                    .addData("g", "%02x", Color.green(color))
+                    .addData("b", "%02x", Color.blue(color));
+
+            if (hsvValues[1] < .5){
+                telemetry.addLine()
+                        .addData("Color", "White");
+            }
+            else{
+                telemetry.addLine()
+                        .addData("Color", "Yellow");
+            }
+
+            telemetry.update();
+            /*
+
+            bCurrState = gamepad1.x;
+
+            if (bCurrState != bPrevState) {
+                if (bCurrState) {
+                    if (colorSensor instanceof SwitchableLight) {
+                        SwitchableLight light = (SwitchableLight)colorSensor;
+                        light.enableLight(!light.isLightOn());
+                    }
+                }
+            }
+
+            bPrevState = bCurrState;
             */
             telemetry.update();
+
+
+            sleep(50);
         }
     }
 }

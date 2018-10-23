@@ -68,10 +68,6 @@ public class PushbotTeleopMecanum extends LinearOpMode {
             float gamepad1LeftX = gamepad1.left_stick_x;
             float gamepad1RightY = -gamepad1.right_stick_y;
             float gamepad1RightX = gamepad1.right_stick_x;
-            //boolean gamepad1Down = gamepad1.dpad_down;
-            //boolean gamepad1Up = gamepad1.dpad_up;
-            //boolean gamepad1Left = gamepad1.dpad_left;
-            //boolean gamepad1Right = gamepad1.dpad_right;
 
            float gamepad2LeftY = -gamepad2.left_stick_y;
            float gamepad2RightY = -gamepad2.right_stick_y;
@@ -127,25 +123,7 @@ public class PushbotTeleopMecanum extends LinearOpMode {
                 rightFront = (0);
                 rightBack = (0);
             }
-/*
-            if (gamepad1Up) {
-                if (gamepad1Left) {
-                    rightFront = 1 / 2;
-                    leftBack = 1 / 2;
-                } else if (gamepad1Right) {
-                    rightBack = 1 / 2;
-                    leftFront = 1 / 2;
-                }
-            } else if (gamepad1Down){
-                if (gamepad1Left) {
-                    rightFront = -1 / 2;
-                    leftBack = -1 / 2;
-                } else if (gamepad1Right) {
-                    rightBack = -1 / 2;
-                    leftFront = -1 / 2;
-                }
-            }
-*/
+
             // clip the right/left values so that the values never exceed +/- 1
             rightFront = Range.clip(rightFront, -1, 1);
             leftFront = Range.clip(leftFront, -1, 1);
